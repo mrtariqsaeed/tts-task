@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  getHotelsURL: "https://us-central1-tts-task.cloudfunctions.net/getHotel"
 };
