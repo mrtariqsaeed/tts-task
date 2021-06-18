@@ -1,29 +1,40 @@
 <div class="container">
   <mat-form-field appearance="fill" *ngIf="hotels" style="margin-right: 32px">
     <mat-label>Hotels</mat-label>
-    <mat-select>
+    <mat-select [(ngModel)]="hotelID">
       <mat-option *ngFor="let hotel of hotels" [value]="hotel.id">
-        {{hotel.name}}
+        {{ hotel.name }}
       </mat-option>
     </mat-select>
   </mat-form-field>
-  
-  <mat-form-field appearance="fill" class="example-form-field" style="margin-right: 32px">
+
+  <mat-form-field
+    appearance="fill"
+    class="example-form-field"
+    style="margin-right: 32px"
+  >
     <mat-label>Enter a date range</mat-label>
     <mat-date-range-input [rangePicker]="rangePicker">
-      <input matStartDate placeholder="Start date" [(ngModel)]="fromDate">
-      <input matEndDate placeholder="End date" [(ngModel)]="toDate">
+      <input matStartDate placeholder="Start date" [(ngModel)]="fromDate" />
+      <input matEndDate placeholder="End date" [(ngModel)]="toDate" />
     </mat-date-range-input>
-    <mat-datepicker-toggle matSuffix [for]="rangePicker"></mat-datepicker-toggle>
+    <mat-datepicker-toggle
+      matSuffix
+      [for]="rangePicker"
+    ></mat-datepicker-toggle>
     <mat-date-range-picker #rangePicker>
       <mat-date-range-picker-actions>
         <button mat-button matDateRangePickerCancel>Cancel</button>
-        <button mat-raised-button color="primary" matDateRangePickerApply>Apply</button>
+        <button mat-raised-button color="primary" matDateRangePickerApply>
+          Apply
+        </button>
       </mat-date-range-picker-actions>
     </mat-date-range-picker>
   </mat-form-field>
 
-  <button mat-icon-button (click)='getReport()'><mat-icon>search</mat-icon></button>
+  <button mat-icon-button (click)="getReport()">
+    <mat-icon>search</mat-icon>
+  </button>
 
   <canvas id="myChart" width="300" height="300"></canvas>
 </div>

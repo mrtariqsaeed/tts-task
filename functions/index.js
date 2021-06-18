@@ -40,36 +40,47 @@ exports.getHotel = functions.https.onRequest((request, response) => {
 
 exports.getReport = functions.https.onRequest((request, response) => {
   cors(request, response, () => {
-    if(request.body) {
+    if (request.body) {
       const reqBody = request.body;
-      if( reqBody.fromDate && reqBody.fromTo && reqBody.hotelID ) {
+      info("Report parameters ->", reqBody);
+      if (reqBody.fromDate && reqBody.toDate && reqBody.hotelID) {
         const pool = mysql.createPool({
           socketPath: "/cloudsql/tts-task:us-central1:ttsdb",
           user: "root",
           password: "ttsdbpass",
           database: "tts",
         });
-    
+
         pool.getConnection((errr, connection) => {
           if (errr) {
             error("Could not get connection!");
             response.send(errr);
           }
-    
+
           info("Database Connected!");
-    
-          connection.query("SELECT * from hotel WHERE create_date", (err, results, fields) => {
-            connection.release();
-            if (err) {
-              error("Query Failed!");
-              pool.end();
-              response.send(err);
-            }
-            info("Query Response -> ", results);
-            response.send(results);
-          });
+          let query = "SELECT * from review ";
+          query += `WHERE create_date > '${reqBody.fromDate}' `;
+          query += `and create_date < '${reqBody.toDate}' `;
+          query += `and hotel_id = ${reqBody.hotelID}`;
+          connection.query(
+              query,
+              (err, results, fields) => {
+                connection.release();
+                if (err) {
+                  error("Query Failed!");
+                  pool.end();
+                  response.send(err);
+                }
+                info("Query Response -> ", results);
+                response.send(results);
+              }
+          );
         });
+      } else {
+        response.status(403).send("Missing some request parameters!");
       }
+    } else {
+      response.status(403).send("Missing all request parameters!");
     }
   });
 });

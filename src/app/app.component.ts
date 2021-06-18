@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, OnInit } from '@angular/core';
 import { AppService } from './app.service';
-import { Hotel } from './app.model';
+import { Hotel, Report } from './app.model';
 import { Chart, registerables } from 'chart.js';
 
 @Component({
@@ -8,11 +8,15 @@ import { Chart, registerables } from 'chart.js';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
   title = 'tts';
   fromDate: string;
   toDate: string;
   hotels: Hotel[];
+  hotelID: string;
+  ctx: HTMLCanvasElement;
+  _ctx: any;
+  myChart: any;
 
   constructor(private appService: AppService) {
     Chart.register(...registerables);
@@ -23,19 +27,26 @@ export class AppComponent implements OnInit{
   }
   ngOnInit() {}
 
-  ngAfterViewInit() {
-    let ctx = document.getElementById('myChart') as HTMLCanvasElement
-    let _ctx = ctx.getContext('2d');
-    const myChart = new Chart(_ctx, {
+  afterViewInit() {
+    
+  }
+
+  setupChart(data: Report[]) {
+    if (this.myChart) this.myChart.destroy();
+
+    const scores = data.map((e) => Number(e.score)) as number[];
+    this.ctx = document.getElementById('myChart') as HTMLCanvasElement;
+    this._ctx = this.ctx.getContext('2d');
+    this.myChart = new Chart(this._ctx, {
       type: 'line',
       data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        labels: scores,
         datasets: [
           {
             label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
+            data: scores,
             borderWidth: 1,
-            borderColor: 'rgb(166, 64, 224)'
+            borderColor: 'rgb(166, 64, 224)',
           },
         ],
       },
@@ -50,6 +61,13 @@ export class AppComponent implements OnInit{
   }
 
   getReport() {
-    console.log("params ->", this.fromDate + " -- " + this.toDate)
+    const body = {
+      hotelID: this.hotelID,
+      fromDate: new Date(this.fromDate).toISOString(),
+      toDate: new Date(this.toDate).toISOString(),
+    };
+    this.appService.getReport(body).subscribe((data: Report[]) => {
+      if (data) this.setupChart(data);
+    });
   }
 }
